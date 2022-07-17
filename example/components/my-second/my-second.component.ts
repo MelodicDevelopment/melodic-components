@@ -7,6 +7,6 @@ import { Component } from '../../../src/component/component.class';
 	styles: styles,
 	template: template
 })
-export class MySecondComponent extends Component {
-	test: number = 12;
+export class MySecondComponent {
+	myAge: number = 12;
 }

@@ -2,32 +2,46 @@ import { render, TemplateResult } from 'lit-html';
 import { IComponent } from './interfaces/icomponent.interface';
 import { IElementMeta } from './interfaces/ielement-meta.interface';
 
-export abstract class Component extends HTMLElement {
+export abstract class Component<T> extends HTMLElement {
 	#root: ShadowRoot;
 	#style: HTMLStyleElement;
+	#meta: IElementMeta;
+	#component: IComponent<T>;
 
-	constructor() {
+	constructor(meta: IElementMeta, component: IComponent<T>) {
 		super();
 
 		this.#root = this.attachShadow({ mode: 'open' });
 		this.#style = this.#attachStyle();
+		this.#meta = meta;
+		this.#component = component;
 	}
 
 	connectedCallback(): void {
 		this.#observe();
 		this.render();
+
+		if (this.#component.onCreate !== undefined) {
+			this.#component.onCreate();
+		}
 	}
 
-	disconnectedCallback(): void {}
+	disconnectedCallback(): void {
+		if (this.#component.onDestroy !== undefined) {
+			this.#component.onDestroy();
+		}
+	}
 
-	adoptedCallback(): void {}
-
-	attributeChangedCallback(attribute: string, _: unknown, newVal: unknown): void {
+	attributeChangedCallback(attribute: string, oldVal: unknown, newVal: unknown): void {
 		if (this[attribute as keyof this] !== undefined) {
 			(this[attribute as keyof this] as unknown) = newVal;
 		}
 
 		this.render();
+
+		if (this.#component.onAttributeChange !== undefined) {
+			this.#component.onAttributeChange(attribute, oldVal, newVal);
+		}
 	}
 
 	render(): void {
@@ -36,11 +50,15 @@ export abstract class Component extends HTMLElement {
 		const attributes: Record<string, string> = this.#getAttributeValues();
 
 		if (template) {
-			render(template(this, attributes), this.#root);
+			render(template(this.#component, attributes), this.#root);
 		}
 
 		if (styles) {
-			render(styles(this, attributes), this.#style);
+			render(styles(this.#component, attributes), this.#style);
+		}
+
+		if (this.#component.onRender !== undefined) {
+			this.#component.onRender();
 		}
 	}
 
@@ -50,26 +68,34 @@ export abstract class Component extends HTMLElement {
 	}
 
 	#observe(): void {
-		const properties: string[] = Object.getOwnPropertyNames(this);
+		const properties: string[] = Object.getOwnPropertyNames(this.#component);
 		properties.forEach((prop) => {
-			let _val: unknown = (this as any)[prop];
+			const self: any = this;
+
+			let _val: unknown = (this.#component as any)[prop];
+
+			if (self[prop] !== undefined) {
+				_val = self[prop];
+			}
 
 			const getter = () => _val;
 			const setter = (newVal: unknown) => {
 				if (_val !== newVal) {
-					_val = newVal;
+					if (this.#component.onPropertyChange !== undefined) {
+						this.#component.onPropertyChange(prop, _val, newVal);
+					}
 
+					_val = newVal;
 					this.render();
 				}
 			};
 
-			Object.defineProperty(this, prop, { get: getter, set: setter });
+			Object.defineProperty(this.#component, prop, { get: getter, set: setter });
 		});
 	}
 
 	#getTemplate(): ((...args: any[]) => TemplateResult) | null {
-		const meta: IElementMeta = Reflect.get(this.constructor, 'meta');
-		const template = meta.template;
+		const template = this.#meta.template;
 
 		if (typeof template === 'string') {
 			return () => template;
@@ -79,8 +105,7 @@ export abstract class Component extends HTMLElement {
 	}
 
 	#getStyles(): ((...args: any[]) => TemplateResult) | null {
-		const meta: IElementMeta = Reflect.get(this.constructor, 'meta');
-		const styles = meta.styles;
+		const styles = this.#meta.styles;
 
 		if (typeof styles === 'string') {
 			return () => styles;
@@ -98,16 +123,18 @@ export abstract class Component extends HTMLElement {
 		return attributes;
 	}
 
-	static meta: IElementMeta;
-	static observedAttributes: string[] = [];
+	static register(meta: IElementMeta): <T>(component: IComponent<T>) => IComponent<T> {
+		return function <T>(component: IComponent<T>): IComponent<T> {
+			if (customElements.get(meta.selector) === undefined) {
+				const webComponent = class extends Component<T> {
+					constructor() {
+						super(meta, Reflect.construct(component, []));
+					}
 
-	static register(meta: IElementMeta): <T extends Component>(component: IComponent<T>) => IComponent<T> {
-		return function <T extends Component>(component: IComponent<T>): IComponent<T> {
-			if (window.customElements.get(meta.selector) === undefined) {
-				component.meta = meta;
-				component.observedAttributes = meta.attributes ?? [];
+					static observedAttributes: string[] = meta.attributes ?? [];
+				};
 
-				window.customElements.define(meta.selector, component);
+				customElements.define(meta.selector, webComponent);
 			}
 
 			return component;

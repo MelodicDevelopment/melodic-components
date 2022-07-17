@@ -1,9 +1,10 @@
-import { Component } from '../component.class';
-import { IElementMeta } from './ielement-meta.interface';
-
-export type IComponent<T extends Component> = {
+export type IComponent<T> = {
 	new (...args: any[]): T;
-	meta: IElementMeta;
-	observedAttributes: string[];
-	register(meta: IElementMeta): <T extends Component>(component: IComponent<T>) => IComponent<T>;
+
+	onInit?: () => void;
+	onCreate?: () => void;
+	onRender?: () => void;
+	onDestroy?: () => void;
+	onAttributeChange?: (attribute: string, oldVal: unknown, newVal: unknown) => void;
+	onPropertyChange?: (property: string, oldVal: unknown, newVal: unknown) => void;
 };

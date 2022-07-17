@@ -7,12 +7,16 @@ import { Component } from '../../../src/component/component.class';
 	styles: styles,
 	template: template
 })
-export class MyFirstComponent extends Component {
+export class MyFirstComponent {
 	age: number = 43;
 	message: string = this.getMessage();
 
 	getAge(): number {
 		return this.age;
+	}
+
+	onCreate(): void {
+		console.log('Created My First');
 	}
 
 	getMessage(): string {
