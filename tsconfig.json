@@ -1,7 +1,9 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"target": "ESNext",
-		"useDefineForClassFields": true,
+		"useDefineForClassFields": false,
+		"importsNotUsedAsValues": "preserve",
 		"module": "ESNext",
 		"lib": [
 			"ESNext",
@@ -19,7 +21,12 @@
 		"noImplicitReturns": true,
 		"skipLibCheck": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true
+		"emitDecoratorMetadata": true,
+		"paths": {
+			"@melodic/*": [
+				"src/*"
+			],
+		}
 	},
 	"include": [
 		"src",

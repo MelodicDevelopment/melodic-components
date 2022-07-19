@@ -1,8 +1,10 @@
+import { Component } from '@melodic/component';
+import { Inject, Injector } from '@melodic/injection';
+import { TestService } from '../../services/test.service';
 import { template } from './my-first.template';
 import { styles } from './my-first.styles';
-import { Component } from '../../../src/component/component.class';
 
-@Component.register({
+@Component({
 	selector: 'my-first',
 	styles: styles,
 	template: template
@@ -11,12 +13,16 @@ export class MyFirstComponent {
 	age: number = 43;
 	message: string = this.getMessage();
 
-	getAge(): number {
-		return this.age;
+	private _testService: TestService;
+
+	//constructor(testService: TestService = Injector.get('TestService')) {
+	constructor(@Inject('TestService') testService: TestService) {
+		this._testService = testService;
+		console.log(this._testService.prop1);
 	}
 
-	onCreate(): void {
-		console.log('Created My First');
+	getAge(): number {
+		return this.age;
 	}
 
 	getMessage(): string {

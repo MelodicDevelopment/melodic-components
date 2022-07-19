@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit-html';
+import { html, TemplateResult } from '@melodic/component';
 import { MySecondComponent } from './my-second.component';
 
 export const template = (c: MySecondComponent): TemplateResult => html`

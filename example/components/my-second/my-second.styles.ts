@@ -1,4 +1,4 @@
-import { html as css, TemplateResult } from 'lit-html';
+import { css, TemplateResult } from '@melodic/component';
 
 export const styles = (): TemplateResult => css`
 	:host {

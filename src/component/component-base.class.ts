@@ -2,7 +2,7 @@ import { render, TemplateResult } from 'lit-html';
 import { IComponent } from './interfaces/icomponent.interface';
 import { IElementMeta } from './interfaces/ielement-meta.interface';
 
-export abstract class Component<T> extends HTMLElement {
+export abstract class ComponentBase<T> extends HTMLElement {
 	#root: ShadowRoot;
 	#style: HTMLStyleElement;
 	#meta: IElementMeta;
@@ -121,23 +121,5 @@ export abstract class Component<T> extends HTMLElement {
 		});
 
 		return attributes;
-	}
-
-	static register(meta: IElementMeta): <T>(component: IComponent<T>) => IComponent<T> {
-		return function <T>(component: IComponent<T>): IComponent<T> {
-			if (customElements.get(meta.selector) === undefined) {
-				const webComponent = class extends Component<T> {
-					constructor() {
-						super(meta, Reflect.construct(component, []));
-					}
-
-					static observedAttributes: string[] = meta.attributes ?? [];
-				};
-
-				customElements.define(meta.selector, webComponent);
-			}
-
-			return component;
-		};
 	}
 }
