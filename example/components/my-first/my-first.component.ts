@@ -1,5 +1,5 @@
 import { Component } from '@melodic/component';
-import { Inject, Injector } from '@melodic/injection';
+import { Inject } from '@melodic/injection';
 import { TestService } from '../../services/test.service';
 import { template } from './my-first.template';
 import { styles } from './my-first.styles';
@@ -13,12 +13,11 @@ export class MyFirstComponent {
 	age: number = 43;
 	message: string = this.getMessage();
 
-	private _testService: TestService;
+	#testService: TestService;
 
-	//constructor(testService: TestService = Injector.get('TestService')) {
 	constructor(@Inject('TestService') testService: TestService) {
-		this._testService = testService;
-		console.log(this._testService.prop1);
+		this.#testService = testService;
+		console.log(this.#testService.prop1);
 	}
 
 	getAge(): number {
