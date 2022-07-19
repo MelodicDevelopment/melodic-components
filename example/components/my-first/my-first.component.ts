@@ -17,7 +17,6 @@ export class MyFirstComponent {
 
 	constructor(@Inject('TestService') testService: TestService) {
 		this.#testService = testService;
-		console.log(this.#testService.prop1);
 	}
 
 	getAge(): number {
@@ -31,5 +30,7 @@ export class MyFirstComponent {
 	testMethod(): void {
 		this.age++;
 		this.message = `Rick Hopkins: ${this.age}`;
+
+		alert(this.#testService.prop1);
 	}
 }

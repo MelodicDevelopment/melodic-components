@@ -3,8 +3,8 @@
 	"private": true,
 	"version": "0.0.0",
 	"scripts": {
-		"dev": "vite --mode=production",
-		"build": "tsc && vite build",
+		"dev": "vite",
+		"build": "tsc && vite build --mode=production",
 		"preview": "vite preview"
 	},
 	"devDependencies": {

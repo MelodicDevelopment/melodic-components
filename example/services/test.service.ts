@@ -5,8 +5,4 @@ import { Injectable } from '@melodic/injection';
 })
 export class TestService {
 	prop1: number = 43;
-
-	constructor() {
-		console.log('GOT HERE');
-	}
 }
