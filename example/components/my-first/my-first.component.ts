@@ -31,6 +31,6 @@ export class MyFirstComponent {
 		this.age++;
 		this.message = `Rick Hopkins: ${this.age}`;
 
-		alert(this.#testService.prop1);
+		this.#testService.consoleAge(this.age);
 	}
 }

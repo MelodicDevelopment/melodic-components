@@ -4,5 +4,7 @@ import { Injectable } from '@melodic/injection';
 	token: 'TestService'
 })
 export class TestService {
-	prop1: number = 43;
+	consoleAge(age: number): void {
+		console.log(age);
+	}
 }
